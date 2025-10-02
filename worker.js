@@ -33,9 +33,12 @@ export default {
       // 生成UUID
       const uuid = crypto.randomUUID();
       const reportId = `${uuid}-${Date.now()}`; // 生成随机ID
+      const timestamp = Date.now();
 
-      // 存入KV数据库
-      await env.MY_KV_NAMESPACE.put(reportId, JSON.stringify(json));
+      // 存入D1数据库
+      await env.DB.prepare(
+        'INSERT INTO csp_reports (id, report_data, created_at) VALUES (?, ?, ?)'
+      ).bind(reportId, JSON.stringify(json), timestamp).run();
 
       return new Response(`Report stored successfully. ID: ${reportId}`, {
         status: 201,
